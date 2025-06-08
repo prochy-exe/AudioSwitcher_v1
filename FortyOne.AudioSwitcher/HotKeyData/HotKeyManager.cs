@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using FortyOne.AudioSwitcher.Configuration;
+using FortyOne.AudioSwitcher.PresetData;
 
 namespace FortyOne.AudioSwitcher.HotKeyData
 {
@@ -139,6 +140,32 @@ namespace FortyOne.AudioSwitcher.HotKeyData
             hk.UnregisterHotkey();
             _hotkeys.Remove(hk);
             SaveHotKeys();
+        }
+
+        public static void DeleteHotKeyByGuid(Guid deviceGuid)
+        {
+            foreach (var hk in _hotkeys)
+            {
+                if (hk.DeviceId == deviceGuid)
+                {
+                    DeleteHotKey(hk);
+                    break;
+                }
+            }
+        }
+
+        public static void UpdateHotKeyGuid(Guid oldGuid, Guid newGuid)
+        {
+            for (int i = 0; i < _hotkeys.Count; i++)
+            {
+                if (_hotkeys[i].DeviceId == oldGuid)
+                {
+                    _hotkeys[i].DeviceId = newGuid;
+                    break; // Exit the loop as we've updated the preset
+                }
+            }
+            SaveHotKeys();
+            RefreshHotkeys();
         }
     }
 }

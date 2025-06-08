@@ -2,6 +2,10 @@
 using System.Windows.Forms;
 using AudioSwitcher.AudioApi;
 using FortyOne.AudioSwitcher.HotKeyData;
+using FortyOne.AudioSwitcher.Helpers;
+using System.Collections.Generic;
+using FortyOne.AudioSwitcher.PresetData;
+using System.Text.RegularExpressions;
 
 namespace FortyOne.AudioSwitcher
 {
@@ -34,6 +38,23 @@ namespace FortyOne.AudioSwitcher
                 _deviceStateFilter |= DeviceState.Unplugged;
 
             cmbDevices.Items.Clear();
+
+            var fakePlaybackDeviceMock = DeviceMockHelper.CreateFakePlaybackDeviceMock();
+            var fakeRecordingDeviceMock = DeviceMockHelper.CreateFakeRecordingDeviceMock();
+            var fakePresetDeviceMock = DeviceMockHelper.CreateFakeCyclePresetDeviceMock();
+
+            cmbDevices.Items.Add(fakePlaybackDeviceMock.Object);
+            cmbDevices.Items.Add(fakeRecordingDeviceMock.Object);
+            cmbDevices.Items.Add(fakePresetDeviceMock.Object);
+
+            var presets = PresetManager.GetPresets();
+
+            foreach (var preset in presets)
+            {
+                var fakePresetDevice = DeviceMockHelper.CreateFakePresetDeviceMock(preset.PresetNumber, preset.PresetId);
+                cmbDevices.Items.Add(fakePresetDevice.Object);
+            }
+
             foreach (var ad in AudioDeviceManager.Controller.GetPlaybackDevices(_deviceStateFilter))
                 cmbDevices.Items.Add(ad);
 

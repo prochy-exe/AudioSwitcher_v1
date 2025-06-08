@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
 using AudioSwitcher.AudioApi;
+using FortyOne.AudioSwitcher.Helpers;
+using FortyOne.AudioSwitcher.PresetData;
 
 namespace FortyOne.AudioSwitcher.HotKeyData
 {
@@ -37,7 +39,30 @@ namespace FortyOne.AudioSwitcher.HotKeyData
 
         public IDevice Device
         {
-            get { return AudioDeviceManager.Controller.GetDevice(DeviceId); }
+            get 
+            {
+                if (DeviceId == new Guid("00000000-0000-0000-0000-000000000000"))
+                {
+                    return DeviceMockHelper.CreateFakePlaybackDeviceMock().Object;
+                }
+                else if (DeviceId == new Guid("00000000-0000-0000-0000-000000000001"))
+                {
+                    return DeviceMockHelper.CreateFakeRecordingDeviceMock().Object;
+                }
+                else if (DeviceId == new Guid("00000000-0000-0000-0000-000000000002"))
+                {
+                    return DeviceMockHelper.CreateFakeCyclePresetDeviceMock().Object;
+                }
+                else if (PresetManager.IsPreset(DeviceId))
+                {
+                    var preset = PresetManager.GetPresetByGuid(DeviceId);
+                    return DeviceMockHelper.CreateFakePresetDeviceMock(preset.PresetNumber, preset.PresetId).Object;
+                }
+                else
+                {
+                    return AudioDeviceManager.Controller.GetDevice(DeviceId);
+                }
+            }
         }
 
         public string DeviceName

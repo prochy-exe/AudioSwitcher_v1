@@ -12,13 +12,18 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Toolkit.Uwp.Notifications;
 using AudioSwitcher.AudioApi;
 using AudioSwitcher.AudioApi.Observables;
 using FortyOne.AudioSwitcher.AudioSwitcherService;
 using FortyOne.AudioSwitcher.Configuration;
 using FortyOne.AudioSwitcher.Helpers;
 using FortyOne.AudioSwitcher.HotKeyData;
+using FortyOne.AudioSwitcher.PresetData;
 using FortyOne.AudioSwitcher.Properties;
+using Windows.UI.Notifications;
+using Windows.Data.Xml.Dom;
+using WindowsInput.Native;
 
 namespace FortyOne.AudioSwitcher
 {
@@ -90,6 +95,7 @@ namespace FortyOne.AudioSwitcher
 
             HotKeyManager.HotKeyPressed += HotKeyManager_HotKeyPressed;
             hotKeyBindingSource.DataSource = HotKeyManager.HotKeys;
+            presetBindingSource.DataSource = PresetManager.Presets;
 
             //Heartbeat
             Task.Factory.StartNew(CheckForNewVersion);
@@ -318,6 +324,7 @@ namespace FortyOne.AudioSwitcher
         {
 #if DEBUG
             btnTestError.Visible = true;
+            btnTestNotification.Visible = true;
 #endif
             MinimizeFootprint();
         }
@@ -490,6 +497,11 @@ namespace FortyOne.AudioSwitcher
         private void button1_Click(object sender, EventArgs e)
         {
             throw new Exception("Fail Message");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            NotificationHelper.SendToastNotification("test device", "test type");
         }
 
         private void AudioSwitcher_KeyDown(object sender, KeyEventArgs e)
@@ -755,6 +767,59 @@ namespace FortyOne.AudioSwitcher
             dataGridView1.Refresh();
         }
 
+        private void btnAddPreset_Click(object sender, EventArgs e)
+        {
+            var prf = new PresetForm();
+            prf.ShowDialog(this);
+            RefreshPresetGrid();
+        }
+
+        private void btnEditPreset_Click(object sender, EventArgs e)
+        {
+            if (presetBindingSource.Current != null)
+            {
+                var prf = new PresetForm((Preset)presetBindingSource.Current);
+                prf.ShowDialog(this);
+                RefreshPresetGrid();
+            }
+        }
+
+        private void btnDeletePreset_Click(object sender, EventArgs e)
+        {
+            if (presetBindingSource.Current != null)
+            {
+                DialogResult result = MessageBox.Show(this, "Do you want to delete this hotkey?", "", MessageBoxButtons.OKCancel);
+
+                if (result == DialogResult.OK)
+                {
+                    PresetManager.DeletePreset((Preset)presetBindingSource.Current);
+                    RefreshPresetGrid();
+                }
+            }
+        }
+        private void btnClearAllPresets_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(this, "Do you want to clear all presets?", "", MessageBoxButtons.OKCancel);
+
+            if (result == DialogResult.OK)
+            {
+                PresetManager.ClearAll();
+                RefreshPresetGrid();
+            }
+        }
+
+        private void RefreshPresetGrid()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(RefreshPresetGrid));
+                return;
+            }
+
+            presetBindingSource.ResetBindings(false);
+            dataPresetGridView1.Refresh();
+        }
+
         private void LoadSettings()
         {
             //Fix to stop the registry thing being removed and not re-added
@@ -772,6 +837,7 @@ namespace FortyOne.AudioSwitcher
 	        chkShowUnknownDevicesInHotkeyList.Checked = Program.Settings.ShowUnknownDevicesInHotkeyList;
             chkShowDisconnectedDevices.Checked = Program.Settings.ShowDisconnectedDevices;
             chkShowDPDeviceIconInTray.Checked = Program.Settings.ShowDPDeviceIconInTray;
+            chkDeviceNotifications.Checked = Program.Settings.DeviceNotificationsEnabled;
 
             Width = Program.Settings.WindowWidth;
             Height = Program.Settings.WindowHeight;
@@ -1291,14 +1357,152 @@ namespace FortyOne.AudioSwitcher
             if (sender is HotKey)
             {
                 var hk = sender as HotKey;
+                var match = Regex.Match(hk.DeviceName, @"Preset\s+(\d+)");
 
                 if (hk.Device == null || hk.Device.IsDefaultDevice)
                     return;
+                if (hk.DeviceName == "Cycle Playback Devices")
+                {
+                    if (FavouriteDeviceManager.FavouriteDeviceCount > 0)
+                    {
+                        var changed = false;
+                        var currentDefaultDevice = AudioDeviceManager.Controller.DefaultPlaybackDevice;
+                        var candidate = FavouriteDeviceManager.GetNextFavouritePlaybackDevice(currentDefaultDevice);
+                        var attemptsCount = FavouriteDeviceManager.FavouritePlaybackDeviceCount;
+                        for (var i = 0; !changed && i < attemptsCount; i++)
+                        {
+                            changed = await candidate.SetAsDefaultAsync();
 
-                await hk.Device.SetAsDefaultAsync();
+                            if (changed)
+                            {
+                                if (Program.Settings.DualSwitchMode)
+                                    await candidate.SetAsDefaultCommunicationsAsync();
+                                if (Program.Settings.DeviceNotificationsEnabled)
+                                    NotificationHelper.SendToastNotification(candidate.FullName, candidate.DeviceType.ToString());
+                            }
 
-                if (Program.Settings.DualSwitchMode)
-                    await hk.Device.SetAsDefaultCommunicationsAsync();
+                            if (!changed)
+                                candidate = FavouriteDeviceManager.GetNextFavouritePlaybackDevice(candidate);
+                        }
+                    }
+                    else
+                    {
+                        var currentDefault = AudioDeviceManager.Controller.DefaultPlaybackDevice;
+                        var playbackDevices = (await AudioDeviceManager.Controller.GetPlaybackDevicesAsync(DeviceState.Active))
+                                                .OrderBy(x => x.Name)
+                                                .ToList();
+
+                        var deviceIndex = playbackDevices.IndexOf(currentDefault);
+                        var newIndex = deviceIndex;
+
+                        while (true)
+                        {
+                            newIndex = (newIndex + 1) % playbackDevices.Count;
+
+                            if (newIndex == deviceIndex)
+                                break;
+
+                            try
+                            {
+                                var newDevice = playbackDevices[newIndex];
+                                if (await newDevice.SetAsDefaultAsync())
+                                {
+                                    if (Program.Settings.DualSwitchMode)
+                                        await newDevice.SetAsDefaultCommunicationsAsync();
+                                    if (Program.Settings.DeviceNotificationsEnabled)
+                                        NotificationHelper.SendToastNotification(newDevice.FullName, newDevice.DeviceType.ToString());
+                                    break;
+                                }
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
+                        }
+                    }
+                }
+                else if (hk.DeviceName == "Cycle Recording Devices")
+                {
+                    if (FavouriteDeviceManager.FavouriteDeviceCount > 0)
+                    {
+                        var changed = false;
+                        var currentDefaultDevice = AudioDeviceManager.Controller.DefaultCaptureDevice;
+                        var candidate = FavouriteDeviceManager.GetNextFavouriteRecordingDevice(currentDefaultDevice);
+                        var attemptsCount = FavouriteDeviceManager.FavouriteRecordingDeviceCount;
+                        for (var i = 0; !changed && i < attemptsCount; i++)
+                        {
+                            changed = await candidate.SetAsDefaultAsync();
+
+                            if (changed)
+                            {
+                                if (Program.Settings.DualSwitchMode)
+                                    await candidate.SetAsDefaultCommunicationsAsync();
+                                if (Program.Settings.DeviceNotificationsEnabled)
+                                    NotificationHelper.SendToastNotification(candidate.FullName, candidate.DeviceType.ToString());
+                            }
+
+                            if (!changed)
+                                candidate = FavouriteDeviceManager.GetNextFavouritePlaybackDevice(candidate);
+                        }
+                    }
+                    else
+                    {
+                        var currentDefault = AudioDeviceManager.Controller.DefaultCaptureDevice;
+                        var recordingDevices = (await AudioDeviceManager.Controller.GetCaptureDevicesAsync(DeviceState.Active))
+                                                .OrderBy(x => x.Name)
+                                                .ToList();
+
+                        var deviceIndex = recordingDevices.IndexOf(currentDefault);
+                        var newIndex = deviceIndex;
+
+                        while (true)
+                        {
+                            newIndex = (newIndex + 1) % recordingDevices.Count;
+
+                            if (newIndex == deviceIndex)
+                                break;
+
+                            try
+                            {
+                                var newDevice = recordingDevices[newIndex];
+                                if (await newDevice.SetAsDefaultAsync())
+                                {
+                                    if (Program.Settings.DualSwitchMode)
+                                        await newDevice.SetAsDefaultCommunicationsAsync();
+                                    if (Program.Settings.DeviceNotificationsEnabled)
+                                        NotificationHelper.SendToastNotification(newDevice.FullName, newDevice.DeviceType.ToString());
+                                    break;
+                                }
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
+                        }
+                    }
+                }
+                else if (hk.DeviceName == "Cycle Presets")
+                {
+                    var currentPlaybackDefault = AudioDeviceManager.Controller.DefaultPlaybackDevice;
+                    var currentRecordingDefault = AudioDeviceManager.Controller.DefaultCaptureDevice;
+                    var nextPreset = PresetManager.GetNextPreset(currentPlaybackDefault, currentRecordingDefault);
+                    nextPreset.SetActive();
+                }
+                else if (match.Success)
+                {
+                    int presetNumber = int.Parse(match.Groups[1].Value) - 1;
+                    var preset = PresetManager.GetPresetByIndex(presetNumber);
+                    preset.SetActive();
+                }
+                else 
+                {
+                    await hk.Device.SetAsDefaultAsync();
+
+                    if (Program.Settings.DualSwitchMode)
+                        await hk.Device.SetAsDefaultCommunicationsAsync();
+                    if (Program.Settings.DeviceNotificationsEnabled)
+                        NotificationHelper.SendToastNotification(hk.DeviceName, hk.Device.DeviceType.ToString());
+                }
             }
         }
 
@@ -1368,6 +1572,11 @@ namespace FortyOne.AudioSwitcher
         private void chkDualSwitchMode_CheckedChanged(object sender, EventArgs e)
         {
             Program.Settings.DualSwitchMode = chkDualSwitchMode.Checked;
+        }
+
+        private void chkDeviceNotifications_CheckedChanged(object sender, EventArgs e)
+        {
+            Program.Settings.DeviceNotificationsEnabled = chkDeviceNotifications.Checked;
         }
 
         private void AudioSwitcher_ResizeEnd(object sender, EventArgs e)

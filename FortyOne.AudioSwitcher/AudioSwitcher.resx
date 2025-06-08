@@ -118,40 +118,43 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="playbackStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>180, 17</value>
   </metadata>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1006, 17</value>
+    <value>1092, 17</value>
   </metadata>
   <metadata name="imageList1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>713, 17</value>
+    <value>847, 17</value>
   </metadata>
   <metadata name="recordingStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>172, 17</value>
+    <value>305, 17</value>
   </metadata>
   <metadata name="hotKeyBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>545, 17</value>
+    <value>679, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="btnAddHotKey.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGOfPtRkwAAACBjSFJNAAB6
-        JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAACXBIWXMAAAsMAAALDAE/QCLIAAABzUlE
-        QVQ4T2P4//8/BuaZxboHiP+j4T3Y1GIIgDBIQ+Api/+xFxz+p17x+F95JwpsCLo6EMYQAGGQ4oiztv9t
-        T0j89zqn8r/zYRbpBiRdcv3ve17tf+J1q/9zXzaSbkDejYD/qTft/1c/CPm/7u1U3AYAJbAF2P/G+4n/
-        ax9E/O97mvN/54eF//nmsaFg4WUcILwHbFv8Raf/CRed/2dd8wEHGMjP059VgjXPeln1f8u7Wf+3vZ8H
-        dsmCl83/Jz4t+l97NxZsCNiAjKte/13PyP+PuGz4P/e2+//mR/H/Jz7L/z/3VR0Yz3hR9r/jccr/0nv+
-        /+Ovmf93O6v4P+OSP8KAkluh/yOvGv/Pv+P5v/Vx4v8pz4rBmkB0z5MMsFeyb7mCLXA4Kf1fez/n/4gT
-        HggD+h4X/p/6rOz/0led/9e+nQh26vLXPXDNk5+U/+94mPu/6nbC/+zLQf9jTnv89z+IMGAPtgAC+bX+
-        YfT/jJuOYM0gMSx4D0a0gDBIctLTUrCz/S9o/q+6FQfWgK4OhDEEQBikGBSNIM2mR4X+p13wI92A3Ov+
-        YM2y2xngAYauDoQxBEAYbMDV4P+x0MDy2Uu6AXtAGtAwluz8nwEAHeKNvWBhHw4AAAAASUVORK5CYII=
+        JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAACXBIWXMAAAsMAAALDAE/QCLIAAABuElE
+        QVQ4T5WR2yvDYRjHd0OUXHCjJCkpuZJESk6NEX6ONYeZCS2MnDMhSVFSc4hWxAWuuBKpn+RCOZvDHOY4
+        s2Xk8B989T6N5XWoXXx7632f7+d9nu8jASDh5aV3E730buAk8nVMPy4cAGRvR0NhiEfFiQxtV4UE4ev+
+        Bcj3YhG76Ye0/WD0m6tcB5QdSZFxEALVWQwm7N2uA2rPs1BxEYf2uzwsvIz+DfgjMHTfqtBxJ8egtQYr
+        79PwnnT/Jt9ZDyaRflMeJqL0MAlVp+kUGJt5zNZGZr1di8VXPZbeJqmTKXsPdNYGdFwrCEIAtTEN0t1A
+        yI/DoblMQc+9EjpbHSaeOknjjy3os5Sj+UaA8jQKyXtBUB8JTkCTKR8FxgjUXaWi16LCiK2RTOwceFDT
+        KNUmKX0Qv+WPsDVPyDdlTsCgpR6jthbMPPVj/kVHrc49D3yZhx9a0WfWQHtZiurjHBTvyCCsOwHibwGx
+        WbvMRVBfJJDZERov8cdamNjjkLWZ2hYModCaSsjA19Ea+YtPAFsjM0du+KDSkOk6QHMmkDlgWfIVGF/3
+        P8CYC4UjrPRV1wHib4HxdUwfHeKNvQAPDHEAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="presetBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <metadata name="notifyIcon1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>301, 17</value>
+    <value>434, 17</value>
   </metadata>
   <metadata name="notifyIconStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>414, 17</value>
+    <value>547, 17</value>
   </metadata>
   <data name="notifyIcon1.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1023,10 +1026,10 @@
 </value>
   </data>
   <metadata name="memoryCleaner.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>823, 17</value>
+    <value>956, 17</value>
   </metadata>
   <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1249, 17</value>
+    <value>17, 54</value>
   </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

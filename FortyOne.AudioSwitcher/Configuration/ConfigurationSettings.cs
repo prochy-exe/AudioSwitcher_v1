@@ -12,6 +12,7 @@ namespace FortyOne.AudioSwitcher.Configuration
         public const string SETTING_AUTOSTARTWITHWINDOWS = "AutoStartWithWindows";
         public const string SETTING_STARTMINIMIZED = "StartMinimized";
         public const string SETTING_HOTKEYS = "HotKeys";
+        public const string SETTING_PRESETS = "Presets";
         public const string SETTING_FAVOURITEDEVICES = "FavouriteDevices";
         public const string SETTING_WINDOWWIDTH = "WindowWidth";
         public const string SETTING_WINDOWHEIGHT = "WindowHeight";
@@ -27,6 +28,7 @@ namespace FortyOne.AudioSwitcher.Configuration
         public const string SETTING_SHOWDISCONNECTEDDDEVICES = "ShowDisconnectedDevices";
         public const string SETTING_SHOWDPDEVICEIICONINTRAY = "ShowDPDeviceIconInTray";
         public const string SETTING_UPDATE_NOTIFICATIONS_ENABLED = "UpdateNotificationsEnabled";
+        public const string SETTING_DEVICE_NOTIFICATIONS_ENABLED = "DeviceNotificationsEnabled";
         private readonly ISettingsSource _configWriter;
 
         public ConfigurationSettings(ISettingsSource source)
@@ -159,6 +161,12 @@ namespace FortyOne.AudioSwitcher.Configuration
             set { _configWriter.Set(SETTING_HOTKEYS, value); }
         }
 
+        public string Presets
+        {
+            get { return _configWriter.Get(SETTING_PRESETS); }
+            set { _configWriter.Set(SETTING_PRESETS, value); }
+        }
+
         public bool CloseToTray
         {
             get { return Convert.ToBoolean(_configWriter.Get(SETTING_CLOSETOTRAY)); }
@@ -239,6 +247,15 @@ namespace FortyOne.AudioSwitcher.Configuration
             }
             set { _configWriter.Set(SETTING_UPDATE_NOTIFICATIONS_ENABLED, value.ToString()); }
         }
+        public bool DeviceNotificationsEnabled
+        {
+            get
+            {
+                return
+                    Convert.ToBoolean(_configWriter.Get(SETTING_DEVICE_NOTIFICATIONS_ENABLED));
+            }
+            set { _configWriter.Set(SETTING_DEVICE_NOTIFICATIONS_ENABLED, value.ToString()); }
+        }
 
         public void CreateDefaults()
         {
@@ -298,6 +315,9 @@ namespace FortyOne.AudioSwitcher.Configuration
             if (!SettingExists(SETTING_SHOWDPDEVICEIICONINTRAY))
                 ShowDPDeviceIconInTray = false;
 
+            if (!SettingExists(SETTING_DEVICE_NOTIFICATIONS_ENABLED))
+                DeviceNotificationsEnabled = false;
+
             if (!SettingExists(SETTING_UPDATE_NOTIFICATIONS_ENABLED))
                 UpdateNotificationsEnabled = PollForUpdates > 0;
         }
@@ -316,6 +336,7 @@ namespace FortyOne.AudioSwitcher.Configuration
             ShowDisabledDevices = otherSettings.ShowDisabledDevices;
             ShowUnknownDevicesInHotkeyList = otherSettings.ShowUnknownDevicesInHotkeyList;
             ShowDisconnectedDevices = otherSettings.ShowDisconnectedDevices;
+            DeviceNotificationsEnabled = otherSettings.DeviceNotificationsEnabled;
             StartMinimized = otherSettings.StartMinimized;
             StartupPlaybackDeviceID = otherSettings.StartupPlaybackDeviceID;
             StartupRecordingDeviceID = otherSettings.StartupRecordingDeviceID;

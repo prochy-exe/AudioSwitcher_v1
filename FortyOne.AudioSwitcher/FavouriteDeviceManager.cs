@@ -34,6 +34,18 @@ namespace FortyOne.AudioSwitcher
             }
         }
 
+        public static int FavouriteRecordingDeviceCount
+        {
+            get
+            {
+                return FavouriteDeviceIDs.Count(id =>
+                {
+                    var device = AudioDeviceManager.Controller.GetDevice(id);
+                    return device != null && !device.IsPlaybackDevice;
+                });
+            }
+        }
+
         public static ReadOnlyCollection<Guid> FavouriteDevices
         {
             get { return new ReadOnlyCollection<Guid>(FavouriteDeviceIDs); }
@@ -103,6 +115,12 @@ namespace FortyOne.AudioSwitcher
             return AudioDeviceManager.Controller.GetDevice(nextDeviceId);
         }
 
+        public static IDevice GetNextFavouriteRecordingDevice(IDevice device)
+        {
+            var nextDeviceId = GetNextFavouriteRecordingDeviceId(device != null ? device.Id : Guid.Empty);
+            return AudioDeviceManager.Controller.GetDevice(nextDeviceId);
+        }
+
         public static Guid GetNextFavouritePlaybackDeviceId(Guid deviceId)
         {
             var index = 0;
@@ -126,6 +144,38 @@ namespace FortyOne.AudioSwitcher
                     continue;
 
                 if (ad.DeviceType == DeviceType.Playback)
+                    return id;
+
+                if (i == index)
+                    break;
+            }
+
+            return Guid.Empty;
+        }
+
+        public static Guid GetNextFavouriteRecordingDeviceId(Guid deviceId)
+        {
+            var index = 0;
+
+            if (deviceId != Guid.Empty)
+            {
+                //Start at the next device
+                index = (FavouriteDeviceIDs.IndexOf(deviceId) + 1) % FavouriteDeviceIDs.Count;
+            }
+
+            var i = index;
+
+            while (true)
+            {
+                var id = FavouriteDeviceIDs[i % FavouriteDeviceIDs.Count];
+                var ad = AudioDeviceManager.Controller.GetDevice(id);
+
+                i++;
+
+                if (ad == null || ad.State != DeviceState.Active)
+                    continue;
+
+                if (ad.DeviceType == DeviceType.Capture)
                     return id;
 
                 if (i == index)
